@@ -6,6 +6,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -77,6 +78,7 @@
   --sidebar-accent-foreground: #e6edf3;
   --sidebar-border: #30363d;
   --sidebar-ring: #388bfd;
+  --brand: #14b8a6;
 }
 
 @layer base {
@@ -126,6 +128,11 @@
 ::-webkit-scrollbar-track { background: #0d1117; }
 ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+/* Card shadow variants — not every card should look the same */
+.card-flat { box-shadow: 0 0.5px 2px rgba(0,0,0,0.2); }
+.card-emphasis { box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.card-flush { box-shadow: none; }
 
 .depth-bar-bid {
   background: linear-gradient(to right, transparent, rgba(63, 185, 80, 0.2));

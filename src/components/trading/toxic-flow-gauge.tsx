@@ -1,6 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+// Using canvas instead of SVG for performance
+// Tried recharts gauge but re-renders were killing frame rate at 500ms ticks
+
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface ToxicFlowGaugeProps {
   score: number; // 0-100
@@ -9,6 +12,26 @@ interface ToxicFlowGaugeProps {
 
 export function ToxicFlowGauge({ score, size = 180 }: ToxicFlowGaugeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [clickCount, setClickCount] = useState(0);
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Easter egg: rapid-click the gauge
+  const handleClick = useCallback(() => {
+    setClickCount((prev) => {
+      const next = prev + 1;
+      if (next >= 5) {
+        console.log("🧪 Toxic flow detected: probably my code");
+        // Reset after triggering
+        setTimeout(() => setClickCount(0), 2000);
+        return next;
+      }
+      return next;
+    });
+
+    // Reset click counter after 1.5s of no clicks
+    if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    clickTimerRef.current = setTimeout(() => setClickCount(0), 1500);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -77,19 +100,32 @@ export function ToxicFlowGauge({ score, size = 180 }: ToxicFlowGaugeProps) {
   }, [score, size]);
 
   const label =
-    score < 40 ? 'LOW RISK' : score < 65 ? 'ELEVATED' : 'HIGH RISK';
+    score < 25
+      ? 'CLEAN \u2713'
+      : score < 50
+      ? 'ELEVATED \u26A0'
+      : score < 75
+      ? 'SPICY \u26A1'
+      : 'NOPE \uD83D\uDD25';
   const labelColor =
-    score < 40 ? 'text-green-500' : score < 65 ? 'text-yellow-500' : 'text-red-500';
+    score < 25
+      ? 'text-green-500'
+      : score < 50
+      ? 'text-yellow-500'
+      : score < 75
+      ? 'text-orange-500'
+      : 'text-red-500';
 
   return (
     <div className="flex flex-col items-center">
       <canvas
         ref={canvasRef}
-        style={{ width: size, height: size }}
+        onClick={handleClick}
+        style={{ width: size, height: size, cursor: 'default' }}
         className="block"
       />
       <span className={`mt-1 text-xs font-medium tracking-wider ${labelColor}`}>
-        {label}
+        {clickCount >= 5 ? 'Still toxic \uD83D\uDE05' : label}
       </span>
     </div>
   );

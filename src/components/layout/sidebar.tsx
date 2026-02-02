@@ -27,12 +27,17 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-border px-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded bg-blue-600 text-xs font-bold text-white">
-            HFT
+          <div className="flex h-7 w-7 items-center justify-center rounded bg-brand text-[10px] font-bold text-white">
+            TF
           </div>
-          <span className="text-sm font-semibold tracking-tight text-foreground">
-            ToxicFlow
-          </span>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold tracking-tight text-foreground leading-tight">
+              ToxicFlow
+            </span>
+            <span className="text-[9px] text-muted-foreground/60 leading-tight">
+              Signal-Aware Trading
+            </span>
+          </div>
         </div>
       </div>
 
@@ -48,8 +53,8 @@ export function Sidebar() {
                   className={cn(
                     'flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors',
                     isActive
-                      ? 'bg-accent text-accent-foreground'
-                      : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                      ? 'bg-brand/10 text-brand border-l-2 border-brand'
+                      : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground border-l-2 border-transparent'
                   )}
                 >
                   <item.icon className="h-4 w-4" />
@@ -68,7 +73,10 @@ export function Sidebar() {
           System Active
         </div>
         <div className="mt-1 text-[11px] text-muted-foreground/60">
-          v1.0.0 — Mock Mode
+          v0.9.4-beta — Mock Mode
+        </div>
+        <div className="mt-2 text-[9px] text-muted-foreground/40">
+          ToxicFlow &copy; 2026 Nexflo AI
         </div>
       </div>
     </aside>

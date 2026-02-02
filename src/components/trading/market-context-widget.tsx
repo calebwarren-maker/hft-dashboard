@@ -53,11 +53,11 @@ export function MarketContextWidget({
   const domainMax = high + 2;
 
   return (
-    <Card className="border-border bg-card">
+    <Card className="border-border bg-card card-flush">
       <CardHeader className="pb-1 pt-3 px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-            {symbol} Market Context — Last 30 Min
+            Market Pulse &middot; {symbol}
           </CardTitle>
           <div className="flex items-center gap-1">
             {(['ES', 'NQ'] as const).map((s) => (
@@ -66,7 +66,7 @@ export function MarketContextWidget({
                 onClick={() => setSymbol(s)}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
                   symbol === s
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-brand text-white'
                     : 'bg-secondary text-muted-foreground hover:text-foreground'
                 }`}
               >

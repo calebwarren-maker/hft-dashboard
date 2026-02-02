@@ -42,13 +42,13 @@ export function Topbar({ totalPnl }: TopbarProps) {
         </span>
         <div className="flex items-center gap-1.5">
           {connected ? (
-            <Wifi className="h-3.5 w-3.5 text-green-500" />
+            <Wifi className="h-3.5 w-3.5 text-brand" />
           ) : (
             <WifiOff className="h-3.5 w-3.5 text-red-500" />
           )}
           <span
-            className={`text-xs ${
-              connected ? 'text-green-500' : 'text-red-500'
+            className={`text-xs font-medium ${
+              connected ? 'text-brand' : 'text-red-500'
             }`}
           >
             {connected ? 'CONNECTED' : 'DISCONNECTED'}

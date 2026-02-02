@@ -21,7 +21,7 @@ const colorMap = {
 
 export function StatCard({ label, value, subValue, color = 'default', large }: StatCardProps) {
   return (
-    <Card className="border-border bg-card">
+    <Card className="border-border bg-card card-flat">
       <CardContent className="p-3">
         <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
           {label}

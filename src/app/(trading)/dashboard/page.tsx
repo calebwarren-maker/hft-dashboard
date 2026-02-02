@@ -19,6 +19,7 @@ import {
   getFlowEvents,
   generateFlowEvent,
   incrementAvoidedTrade,
+  getActivityMultiplier,
 } from '@/lib/mock-data';
 import type { Position, Trade, FlowEvent, DashboardStats } from '@/lib/types';
 
@@ -32,15 +33,24 @@ export default function DashboardPage() {
   useEffect(() => {
     let cancelled = false;
 
-    // Fast refresh for stats and positions (every 500ms)
-    const fastInterval = setInterval(() => {
-      setStats(getDashboardStats());
-      setPositions(getPositions());
-    }, 500);
+    // Fast refresh for stats and positions (~500ms with jitter)
+    let fastTimeout: ReturnType<typeof setTimeout>;
+    const scheduleFast = () => {
+      const jitter = Math.random() * 200 - 100; // ±100ms feels more organic
+      fastTimeout = setTimeout(() => {
+        if (cancelled) return;
+        setStats(getDashboardStats());
+        setPositions(getPositions());
+        scheduleFast();
+      }, 500 + jitter);
+    };
+    scheduleFast();
 
-    // New trade every 8-20 seconds (random each time)
+    // New trade every 8-20 seconds, faster during active market windows
     let tradeTimeout: ReturnType<typeof setTimeout>;
     const scheduleTrade = () => {
+      const activity = getActivityMultiplier();
+      const baseDelay = 8000 + Math.random() * 12000;
       tradeTimeout = setTimeout(() => {
         if (cancelled) return;
         const trade = addNewTrade();
@@ -50,25 +60,27 @@ export default function DashboardPage() {
         }
         setTrades(getTrades());
         scheduleTrade();
-      }, 8000 + Math.random() * 12000);
+      }, baseDelay / Math.max(activity, 0.3));
     };
     scheduleTrade();
 
-    // New flow event every 3-8 seconds (random each time)
+    // New flow event every 3-8 seconds, scaled by market activity
     let flowTimeout: ReturnType<typeof setTimeout>;
     const scheduleFlow = () => {
+      const activity = getActivityMultiplier();
+      const baseDelay = 3000 + Math.random() * 5000;
       flowTimeout = setTimeout(() => {
         if (cancelled) return;
         generateFlowEvent();
         setFlowEvents(getFlowEvents());
         scheduleFlow();
-      }, 3000 + Math.random() * 5000);
+      }, baseDelay / Math.max(activity, 0.3));
     };
     scheduleFlow();
 
     return () => {
       cancelled = true;
-      clearInterval(fastInterval);
+      clearTimeout(fastTimeout);
       clearTimeout(tradeTimeout);
       clearTimeout(flowTimeout);
     };
@@ -119,14 +131,14 @@ export default function DashboardPage() {
 
       {/* ─── Row 2: Gauge + Positions + Market Context ─────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
-        {/* Toxic Flow Gauge */}
-        <Card className="lg:col-span-3 border-border bg-card">
+        {/* Toxic Flow Gauge — slightly taller for visual weight */}
+        <Card className="lg:col-span-3 border-border bg-card card-emphasis">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-              Toxic Flow Score
+              Flow Toxicity
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center pb-4">
+          <CardContent className="flex justify-center pb-6">
             <ToxicFlowGauge score={stats.toxicFlowScore} size={170} />
           </CardContent>
         </Card>
@@ -135,7 +147,7 @@ export default function DashboardPage() {
         <Card className="lg:col-span-4 border-border bg-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-              Open Positions
+              Active Positions
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -166,8 +178,8 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Live Market Context */}
-        <div className="lg:col-span-5">
+        {/* Live Market Context — flush shadow, feels more integrated */}
+        <div className="lg:col-span-5 -mt-0.5">
           <MarketContextWidget />
         </div>
       </div>
@@ -176,10 +188,10 @@ export default function DashboardPage() {
       <Card className="border-border bg-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-            Equity Curve (7d)
+            Performance (7d)
           </CardTitle>
         </CardHeader>
-        <CardContent className="pb-2">
+        <CardContent className="pb-3">
           <EquityCurve data={equityCurve} height={180} />
         </CardContent>
       </Card>
@@ -191,7 +203,7 @@ export default function DashboardPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-                Recent Trades
+                Trade History
               </CardTitle>
               <div className="flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-500 live-dot" />
@@ -209,10 +221,10 @@ export default function DashboardPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-                Flow Classification
+                Signal Classification
               </CardTitle>
               <div className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-500 live-dot" />
+                <span className="h-1.5 w-1.5 rounded-full bg-brand live-dot" />
                 <span className="text-[10px] text-muted-foreground">STREAM</span>
               </div>
             </div>

@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
       <Card className="border-border bg-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-            Equity Curve — Cumulative P&L ({dateRange} Day{dateRange > 1 ? 's' : ''})
+            Performance — Cumulative P&L ({dateRange} Day{dateRange > 1 ? 's' : ''})
           </CardTitle>
         </CardHeader>
         <CardContent>

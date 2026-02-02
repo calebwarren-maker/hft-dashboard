@@ -131,7 +131,7 @@ export default function MonitorPage() {
       {/* Top stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <StatCard
-          label="Toxic Flow Score"
+          label="Flow Toxicity"
           value={`${stats.toxicFlowScore.toFixed(1)}%`}
           color={stats.toxicFlowScore > 60 ? 'red' : stats.toxicFlowScore > 40 ? 'yellow' : 'green'}
           large
@@ -166,10 +166,10 @@ export default function MonitorPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-                Live Flow Classification
+                Live Signal Stream
               </CardTitle>
               <div className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-500 live-dot" />
+                <span className="h-1.5 w-1.5 rounded-full bg-brand live-dot" />
                 <span className="text-[10px] text-muted-foreground">
                   {events.length} events
                 </span>
@@ -271,7 +271,7 @@ export default function MonitorPage() {
         <Card className="lg:col-span-3 border-border bg-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">
-              Trade Rejections
+              Rejection Log
             </CardTitle>
           </CardHeader>
           <CardContent className="h-[500px] overflow-auto">

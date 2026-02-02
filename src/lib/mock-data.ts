@@ -12,6 +12,9 @@ import {
   PricePoint,
 } from './types';
 
+// TODO: Replace with real Databento feed when live
+// Current mock generates ~50 events/sec, real market is 100-500/sec
+
 // ─── Helpers ──────────────────────────────────────────────────────
 let tradeCounter = 1000;
 let flowEventCounter = 5000;
@@ -140,6 +143,8 @@ export function addNewTrade(): Trade {
 }
 
 // ─── Order Book ───────────────────────────────────────────────────
+// Note: Imbalance calculation needs tuning — too sensitive to small orders
+// Consider adding volume-weighted version (VWAP-style) for v1.0
 export function generateOrderBook(symbol: string = 'ES'): OrderBook {
   const mid = midPrice(symbol);
   const tick = tickSize(symbol);
@@ -173,6 +178,27 @@ export function generateOrderBook(symbol: string = 'ES'): OrderBook {
   return { symbol, bids, asks, imbalance, timestamp: new Date() };
 }
 
+// ─── Market Activity Patterns ─────────────────────────────────────
+// Simulate realistic intraday volume: active open/close, quiet lunch
+export function getActivityMultiplier(): number {
+  const hour = new Date().getHours();
+  const minute = new Date().getMinutes();
+  const minuteOfDay = hour * 60 + minute;
+
+  // Pre-market / post-market: very low activity
+  if (hour < 7 || hour >= 20) return 0.2;
+  // Market open (9:30-10:30): high activity
+  if (minuteOfDay >= 570 && minuteOfDay <= 630) return 1.8;
+  // Lunch lull (12:00-13:00): quiet
+  if (hour === 12) return 0.5;
+  // Power hour (14:00-15:00): elevated
+  if (hour === 14) return 1.5;
+  // Close (15:00-16:00): high activity
+  if (hour === 15) return 1.7;
+  // Default
+  return 1.0;
+}
+
 // ─── Dashboard Stats ──────────────────────────────────────────────
 let statAccumulator = {
   totalPnl: 4250.0,
@@ -195,13 +221,16 @@ export function getDashboardStats(): DashboardStats {
   }
   lastStatsTick = now;
 
-  statAccumulator.totalPnl += rand(-50, 80);
+  const activity = getActivityMultiplier();
+  // P&L swings scale with market activity — lunch is quieter, open/close wilder
+  statAccumulator.totalPnl += rand(-50, 80) * activity;
   statAccumulator.totalPnl = Math.round(statAccumulator.totalPnl * 100) / 100;
 
-  const toxicSpike = Math.random() < 0.05; // 5% chance of spike
+  // Toxic spikes more likely during high-activity windows
+  const toxicSpike = Math.random() < 0.05 * activity;
   const toxicFlowScore = toxicSpike
     ? rand(70, 92)
-    : statAccumulator.toxicFlowBase + rand(-8, 8);
+    : statAccumulator.toxicFlowBase + rand(-8, 8) * activity;
 
   cachedStats = {
     totalPnl: statAccumulator.totalPnl,
